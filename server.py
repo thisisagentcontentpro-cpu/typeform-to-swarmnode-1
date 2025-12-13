@@ -29,7 +29,7 @@ def typeform_to_swarmnode():
         # Send to SwarmNode
         url = f"https://api.swarmnode.com/v1/agents/{f40d1956-56f0-4ed6-b18a-ffdf08e80d55}/input"
         headers = {
-            "Authorization": f"Bearer {1a032cd4a51c4264aa47da33e05e76d6}",
+            "Authorization": "Bearer 1a032cd4a51c4264aa47da33e05e76d6",
             "Content-Type": "application/json"
         }
         response = requests.post(url, headers=headers, data=json.dumps(payload))
