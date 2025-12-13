@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)  # Must be 'app'
 
-SWARMNODE_API_KEY = "YOUR_SWARMNODE_API_KEY"
+SWARMNODE_API_KEY = "1a032cd4a51c4264aa47da33e05e76d6"
 AGENT_ID = "YOUR_AGENT_ID"
 
 @app.route("/", methods=["POST"])
@@ -27,11 +27,11 @@ def webhook():
     }
 
     headers = {
-        "Authorization": f"Bearer {SWARMNODE_API_KEY}",
+        "Authorization": f"Bearer {1a032cd4a51c4264aa47da33e05e76d6}",
         "Content-Type": "application/json"
     }
 
-    url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
+    url = f"https://api.swarmnode.com/v1/agents/{f40d1956-56f0-4ed6-b18a-ffdf08e80d55}/input"
     response = requests.post(url, headers=headers, json=payload)
 
     return jsonify({"status": "sent", "swarmnode_status": response.status_code})
