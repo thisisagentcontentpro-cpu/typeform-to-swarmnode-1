@@ -6,8 +6,8 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-AGENT_ID = os.environ.get("SWARMNODE_AGENT_ID")
-SWARMNODE_API_KEY = os.environ.get("SWARMNODE_API_KEY")
+AGENT_ID = os.environ.get"f40d1956-56f0-4ed6-b18a-ffdf08e80d55"
+SWARMNODE_API_KEY = os.environ.get"1a032cd4a51c4264aa47da33e05e76d6"
 
 @app.route("/")
 def home():
@@ -19,7 +19,7 @@ def handle_typeform():
     logging.info(f"Received Typeform payload: {data}")
 
     payload = {"input": data}
-    url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
+    url = f"https://api.swarmnode.com/v1/agents/f40d1956-56f0-4ed6-b18a-ffdf08e80d55/input"
     headers = {
         "Authorization": f"Bearer {SWARMNODE_API_KEY}",
         "Content-Type": "application/json"
