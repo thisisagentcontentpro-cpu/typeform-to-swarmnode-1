@@ -35,3 +35,34 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
 
+from flask import Flask, request, jsonify
+import os
+import requests
+
+app = Flask(__name__)
+
+AGENT_ID = os.environ.get("SWARMNODE_AGENT_ID")
+API_KEY = os.environ.get("SWARMNODE_API_KEY")
+
+@app.route("/test-typeform", methods=["POST"])
+def test_typeform():
+    payload = {
+        "event_id": "TEST123",
+        "event_type": "form_response",
+        "form_response": {
+            "form_id": "TEST_FORM",
+            "answers": [
+                {"type": "text", "text": "John Doe"},
+                {"type": "email", "email": "john@example.com"},
+                {"type": "choice", "choice": {"label": "Starter"}}
+            ]
+        }
+    }
+
+    try:
+        url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+        r = requests.post(url, json=payload, headers=headers)
+        return jsonify({"status": "success", "swarmnode_response": r.json()})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
