@@ -1,20 +1,15 @@
 from flask import Flask, request, jsonify
 import requests
 
-# Replace these with your actual SwarmNode API Key and Agent ID
-SWARMNODE_API_KEY = "1a032cd4a51c4264aa47da33e05e76d6"
-AGENT_ID = "f40d1956-56f0-4ed6-b18a-ffdf08e80d55"
-
 app = Flask(__name__)
 
-@app.route("/")
-def index():
-    return "Server is running", 200
+# Put your keys here
+SWARMNODE_API_KEY = "1a032cd4a51c4264aa47da33e05e76d6"
+AGENT_ID = "f40d1956-56f0-4ed6-b18a-ffdf08e80d55"
 
 @app.route("/typeform", methods=["POST"])
 def handle_typeform():
     data = request.json
-
     payload = {"input": data}
 
     url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
@@ -24,7 +19,7 @@ def handle_typeform():
     }
 
     try:
-        # verify=False disables SSL verification to avoid TLS errors
+        # Skip SSL verification for testing only
         response = requests.post(url, json=payload, headers=headers, verify=False)
         return jsonify({
             "status": "success",
@@ -38,6 +33,4 @@ def handle_typeform():
         }), 500
 
 if __name__ == "__main__":
-    # Use port 10000 because Render detects it automatically
     app.run(host="0.0.0.0", port=10000)
-
