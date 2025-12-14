@@ -5,8 +5,8 @@ import requests
 app = Flask(__name__)
 
 # Your SwarmNode Agent ID and API Key from environment variables
-AGENT_ID = os.environ.get("f40d1956-56f0-4ed6-b18a-ffdf08e80d55")
-API_KEY = os.environ.get("1a032cd4a51c4264aa47da33e05e76d6")
+AGENT_ID = os.environ.get("SWARMNODE_AGENT_ID")
+API_KEY = os.environ.get("SWARMNODE_API_KEY")
 
 # ===== Homepage route =====
 @app.route("/", methods=["GET"])
