@@ -1,34 +1,67 @@
 from flask import Flask, request, jsonify
 import requests
-import os
+import urllib3
+
+# Disable SSL warnings (optional)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 
-SWARMNODE_API_KEY = os.getenv("SWARMNODE_API_KEY")
-SWARMNODE_AGENT_ID = os.getenv("SWARMNODE_AGENT_ID")
+# ==== Replace these with your actual values ====
+SWARMNODE_API_KEY = "1a032cd4a51c4264aa47da33e05e76d6"
+AGENT_ID = "f40d1956-56f0-4ed6-b18a-ffdf08e80d55"
+# ==============================================
 
 @app.route("/typeform", methods=["POST"])
 def handle_typeform():
     data = request.json
 
-    if not SWARMNODE_API_KEY or not SWARMNODE_AGENT_ID:
-        return jsonify({"error": "Missing SwarmNode config"}), 500
+    # Transform Typeform payload if needed
+    payload = {
+        "input": data
+    }
 
-    url = f"https://api.swarmnode.com/v1/agents/{SWARMNODE_AGENT_ID}/input"
+    url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
 
     headers = {
         "Authorization": f"Bearer {SWARMNODE_API_KEY}",
         "Content-Type": "application/json"
     }
 
-    payload = {
-        "input": data
-    }
+    try:
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers,
+            verify=True  # Ensures SSL is properly verified
+        )
 
-    response = requests.post(url, json=payload, headers=headers)
+        # Return SwarmNode response for debugging
+        return jsonify({
+            "status": "success",
+            "swarmnode_response": response.json()
+        }), 200
 
-    return jsonify({
-        "status": "sent_to_swarmnode",
-        "swarmnode_status": response.status_code,
-        "swarmnode_response": response.text
-    }), 200
+    except requests.exceptions.SSLError as e:
+        return jsonify({
+            "status": "error",
+            "message": "SSL Error",
+            "details": str(e)
+        }), 500
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({
+            "status": "error",
+            "message": "Request Failed",
+            "details": str(e)
+        }), 500
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return "Typeform → SwarmNode Webhook is running.", 200
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
+
