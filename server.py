@@ -4,36 +4,61 @@ import os
 
 app = Flask(__name__)
 
-# ===== CONFIG =====
-SWARMNODE_API_KEY = "1a032cd4a51c4264aa47da33e05e76d6"
-AGENT_ID = "f40d1956-56f0-4ed6-b18a-ffdf08e80d55"
-# ==================
-
-@app.route("/typeform", methods=["POST"])
-def handle_typeform():
-    data = request.json
-    print("Received Typeform payload")
-
-    payload = {
-        "typeform_response": data
-    }
-
-    headers = {
-        "Authorization": f"Bearer {SWARMNODE_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    url = f"https://api.swarmnode.com/v1/agents/{AGENT_ID}/input"
-
-    response = requests.post(url, headers=headers, json=payload)
-
-    print("SwarmNode status:", response.status_code)
-    print("SwarmNode response:", response.text)
-
-    return jsonify({"status": "ok"}), 200
-
+SWARMNODE_API_KEY = os.environ.get("SWARMNODE_API_KEY")
+SWARMNODE_AGENT_ID = os.environ.get("SWARMNODE_AGENT_ID")
 
 @app.route("/", methods=["GET"])
 def health_check():
-    return "Server is running", 200
+    return "OK", 200
+
+@app.route("/typeform", methods=["POST"])
+def handle_typeform():
+    try:
+        payload = request.json
+
+        if not payload:
+            return jsonify({"error": "No JSON payload received"}), 400
+
+        # Extract answers safely
+        answers = payload.get("form_response", {}).get("answers", [])
+
+        data = {}
+        for answer in answers:
+            field_id = answer.get("field", {}).get("id")
+            if "text" in answer:
+                data[field_id] = answer["text"]
+            elif "email" in answer:
+                data[field_id] = answer["email"]
+            elif "choice" in answer:
+                data[field_id] = answer["choice"].get("label")
+
+        swarmnode_payload = {
+            "input": data
+        }
+
+        headers = {
+            "Authorization": f"Bearer {SWARMNODE_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        swarmnode_url = f"https://api.swarmnode.ai/agents/{SWARMNODE_AGENT_ID}/invoke"
+
+        response = requests.post(
+            swarmnode_url,
+            json=swarmnode_payload,
+            headers=headers,
+            timeout=30
+        )
+
+        return jsonify({
+            "status": "sent_to_swarmnode",
+            "swarmnode_status": response.status_code,
+            "swarmnode_response": response.text
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Server error",
+            "details": str(e)
+        }), 500
 
